@@ -3,15 +3,17 @@ Nombre: Rodriguez Bocanegra, Juan Daniel
 Materia: Seminario de Solucion de Problemas de Bases de datos
 Profesor: Michel Davalos Boites
 
-# Actividad 08 (UPDATE)
-Implementar las modificaciones en el software. Subir reporte con capturas de
-pantalla de la ejecución del programa, el .sql y el .py (o repositorio).
-
+# Actividad 09 (SMTP) Extra
+Hacer que el software envíe correos por medio del protocolo SMTP.
 """
-import sqlite3
-import os
-import time
-import getpass
+
+#Me quede en definicion de reenviar linea 636/ Ajustar al software la funcion.
+
+import sqlite3, os, getpass, time, smtplib, socket, sys
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email.encoders import encode_base64
 
 class Usuario():
     def __init__(self, data):
@@ -20,6 +22,7 @@ class Usuario():
         self.apellidoPatU = data
         self.apellidoMatU = data
         self.nombresU = data
+        self.contraApp = data
     def __str__ (self):
         return "\n\tEmail:      "+str(self.correo)\
               +"\n\tContraseña: "\
@@ -333,6 +336,7 @@ class MenuCorreoNuevo():
         pass
     def menu(self,user,db,mContactos):
         menuC = mContactos
+
         u = user
         cursor = db.cursor()
         c = Correo(None)
@@ -597,10 +601,12 @@ class MenuCorreoEnviado():
                     e.correo_id = row[0]
                     e.fecha = row [1]
                     e.hora = row [2]
+                    e.de = row [3]
                     e.para = row [4]
                     e.texto = row [5]
                     e.asunto = row [6]
                     e.adjunto = row [7]
+                    e.eliminado = row [8]
                     print("=========================================")
                 if flag == False:
                     print("\n\t(!) EL ID ingresado no existe!!")
@@ -623,13 +629,122 @@ class MenuCorreoEnviado():
                 pass
             elif opc == '2':
                 self.eliminar(user,cursor,e)
-
                 break
             elif opc == '3':
-                pass
+                self.reenviar(user,cursor,e)
             else:
                 print("\n\tIngrese una de las opciones...")
                 input("\n\tPresione una tecla para continuar...")
+    def enviar():
+        # Conexion con el servidor
+        try:
+            smtpserver = smtplib.SMTP("smtp.gmail.com", 587)
+            smtpserver.ehlo()
+            #protocolo de cifrado de datos utilizado por gmail
+            smtpserver.starttls()
+            smtpserver.ehlo()
+            print ("Conexion exitosa con Gmail")
+            print ("Concectado a Gmail")
+            # Datos
+            try:
+                gmail_user = str(input("Escriba su correo: ")).lower().strip()
+                gmail_pwd = getpass.getpass("Escriba su password: ").strip()
+                #Credenciales
+                smtpserver.login(gmail_user, gmail_pwd)
+            except smtplib.SMTPException:
+                print ("")
+                print ("Autenticacion incorrecta" + "\n")
+                smtpserver.close()
+                getpass.getpass("Presione ENTER para continuar...")
+                sys.exit(1)
+
+        except (socket.gaierror, socket.error, socket.herror, smtplib.SMTPException):
+            print ("Fallo en la conexion con Gmail")
+            input("Presione ENTER para continuar...")
+            sys.exit(1)
+
+
+        while True:
+            to = str(input("Enviar correo a: ")).lower().strip()
+            if to != "":
+                break
+            else:
+                print ("El correo es necesario!!!")
+
+        sub = str(input("Asunto: ")).strip()
+        bodymsg = str(input("Mensaje: "))
+        #print ("")
+        #header = "Para: " + to +"\n" + "De: " + gmail_user + "\n" + "Asunto: " + sub + "\n"
+        #print (header)
+        #msg = header + "\n" + bodymsg + "\n\n"
+        #print (msg)
+        archivo = input("Adjuntar: ")
+
+
+        #muestra la depuración de la operacion de envío 1=true
+        smtpserver.set_debuglevel(1)
+
+        header = MIMEMultipart()
+        header['Asunto'] = sub
+        header['De'] = gmail_user
+        header['Para'] = to
+
+        bodymsg = MIMEText(bodymsg, 'html') #Content-type:text/html
+        header.attach(bodymsg)
+
+        if (os.path.isfile(archivo)):
+            adjunto = MIMEBase('application', 'octet-stream')
+            adjunto.set_payload(open(archivo, "rb").read())
+            encode_base64(adjunto)
+            adjunto.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(archivo))
+            header.attach(adjunto)
+        else:
+            print("\n\t(!) No se pudo localizar el archivo adjunto...")
+
+        try:
+            smtpserver.sendmail(gmail_user, to, header.as_string())
+
+        except smtplib.SMTPException:
+            print ("El correo no pudo ser enviado" + "\n")
+            smtpserver.close()
+            getpass.getpass("Presione ENTER para continuar...")
+            sys.exit(1)
+
+        print ("El correo se envio correctamente" + "\n")
+        smtpserver.close()
+        getpass.getpass("Presione ENTER para continuar")
+        sys.exit(1)
+
+
+    def reenviar(self,user,cursor,e):
+        os.system("clear")
+        print(e)
+        while True:
+            print("\n\t¿Desea reenviar? \n\t1) SI\n\t2) NO")
+            opc = input("\n\tSeleccione una opcion: ")
+            if opc.isdigit():
+                opc = int(opc)
+                if opc == 1:
+                    while True:
+                        os.system("clear")
+                        c.para = input("\tPara: ")
+                        if len(c.para) < 8:
+                            print("\n\t(!) Ingrese un destinatario valido!")
+                            input("\n\ŧPresione una tecla para continuar...")
+                        else:
+                            break
+
+
+
+                    break #Termina while para para cuestionar...
+                elif opc == 2:
+                    return
+                else:
+                    input("\n\t(!) Ingrese una de las opciones!")
+            else:
+                print("\n\t(!) Ingrese solo numeros!!")
+
+
 
     def recuperar(self,user,cursor):
         while True:
@@ -651,6 +766,7 @@ class MenuCorreoEnviado():
                     input("\n\t(!) Ingrese una de las opciones!")
             else:
                 print("\n\t(!) Ingrese solo numeros!!")
+
     def eliminar(self,user,cursor,e):
         while True:
             print("\n\tSeguro que desea eliminar? \n\t1) SI\n\t2) NO")
@@ -708,7 +824,7 @@ class MenuCorreoEnviado():
 
     def menu(self,user,db):
         cursor = db.cursor()
-        e = Correo(None)
+        #e = Correo(None)
         while True:
             db.commit()
             os.system("clear")
@@ -843,21 +959,34 @@ class Login_Registro():
                 if pass1 == pass2:
                     user.contra = pass1
                     break
+        while True:
+            print("\n\tPresione solo < ENTER > si no posee alguna")
+            pass1 = getpass.getpass("\tContrañena de aplicacion Gmail: ")
+            if len(pass1) == 0:
+                break
+            pass2 = getpass.getpass("\tIngrese de nuevo la contraseña: ")
+            if pass1 != pass2 :
+                print("\n\t(!) Las contraseñas no coinciden!")
+            if len(pass1) < 5:
+                print("\n\t(!) Ingrese una contraseña valida")
+            else:
+                if pass1 == pass2:
+                    user.contraApp = pass1
+                    break
         user.apellidoPatU = input("\tApellido paterno: ")
         while user.apellidoPatU.isalnum() == False:
             print("\n\t(!) Apellido invalido!")
             user.apellidoPatU = input ("\tIngrese su apellido paterno de nuevo: ")
 
         user.apellidoMatU = input("\tApellido Materno: ")
-
         user.nombresU = input("\tNombre(s): ")
         while len(user.nombresU) < 1:
             print("(!) Nombre invalido!")
             user.nombresU = input("\tIngrese su nombre de nuevo: ")
         c.execute("INSERT INTO USUARIO (correo,contra,apellidoPatU,\
-            apellidoMatU,nombresU) VALUES (?,?,?,?,?)",\
+            apellidoMatU,nombresU,contraApp) VALUES (?,?,?,?,?,?)",\
             (user.correo, user.contra,user.apellidoPatU,user.apellidoMatU,\
-            user.nombresU))
+            user.nombresU,user.contraApp,))
         db.commit()
         print("\n\tRegistro exitoso!")
         input("\n\tPresione una tecla para continuar...")
