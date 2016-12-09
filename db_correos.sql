@@ -1,0 +1,25 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE USUARIO(    correo TEXT NOT NULL,	contra TEXT NOT NULL,	apellidoPatU TEXT NOT NULL,	apellidoMatU TEXT,    nombresU TEXT NOT NULL,    contraApp TEXT,	PRIMARY KEY(correo));
+INSERT INTO "USUARIO" VALUES('juan.rbocanegra@alumnos.udg.mx','q','Rodriguez','Bocanegra','Juan Daniel','edzwfzvrugbevnzj');
+CREATE TABLE CONTACTO(	contacto_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,	email TEXT NOT NULL,	registra TEXT NOT NULL,	apellidoPatC TEXT NOT NULL,	apellidoMatC TEXT,	nombresC TEXT NOT NULL,	FOREIGN KEY(registra) REFERENCES USUARIO ( correo )    );
+INSERT INTO "CONTACTO" VALUES(2,'ana@gmail.com','juan.rbocanegra@alumnos.udg.mx','Lopez','Perez','Ana Rosa');
+INSERT INTO "CONTACTO" VALUES(3,'jose@gmail.com','juan.rbocanegra@alumnos.udg.mx','Juarez',NULL,'Jose Antonio');
+INSERT INTO "CONTACTO" VALUES(4,'michel.davalos@academicos.udg.mx','juan.rbocanegra@alumnos.udg.mx','Davalos','Boites','Michel');
+INSERT INTO "CONTACTO" VALUES(5,'juan.rbocanegra@alumnos.udg.mx','juan.rbocanegra@alumnos.udg.mx','Rodriguez',NULL,'Yo');
+CREATE TABLE CORREO(	correo_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,	fecha NUMERIC NOT NULL,	hora NUMERIC NOT NULL,	de TEXT NOT NULL,	para TEXT NOT NULL,	texto TEXT,	asunto TEXT,	adjunto TEXT,    eliminado BOOLEAN NOT NULL,	FOREIGN KEY(`de`) REFERENCES USUARIO ( correo ));
+INSERT INTO "CORREO" VALUES(1,'07/12/2016','22:50:18','juan.rbocanegra@alumnos.udg.mx','juan.rbocanegra@alumnos.udg.mx',NULL,'Prueba 6','/home/daniel/Desktop/DB_Actividad_09/z.txt',0);
+INSERT INTO "CORREO" VALUES(2,'07/12/2016','22:54:46','juan.rbocanegra@alumnos.udg.mx','juan.rbocanegra@alumnos.udg.mx','Nadaajajaj
+	sjsjsj sjs js','Saludo','/home/daniel/Desktop/DB_Actividad_09/z.txt',0);
+INSERT INTO "CORREO" VALUES(3,'07/12/2016','22:58:52','juan.rbocanegra@alumnos.udg.mx','juan.rbocanegra@alumnos.udg.mx',NULL,'qooqo',NULL,0);
+INSERT INTO "CORREO" VALUES(4,'07/12/2016','23:14:07','juan.rbocanegra@alumnos.udg.mx','jose@gmail.com','Hola Jose...','Saludo',NULL,0);
+INSERT INTO "CORREO" VALUES(6,'07/12/2016','23:40:09','juan.rbocanegra@alumnos.udg.mx','juan.rbocanegra@alumnos.udg.mx','Correo de prueba para reenviar','Prueba reenviar','/home/daniel/Desktop/DB_Actividad_09/README.md',0);
+INSERT INTO "CORREO" VALUES(7,'08/12/2016','19:25:19','juan.rbocanegra@alumnos.udg.mx','michel.davalos@academicos.udg.mx','Proyecto final','Jueves',NULL,0);
+CREATE TABLE CORREO_E(	correo_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,	fecha NUMERIC NOT NULL,	hora NUMERIC NOT NULL,	de TEXT NOT NULL,	para TEXT NOT NULL,	texto TEXT,	asunto TEXT,	adjunto TEXT,    eliminado BOOLEAN NOT NULL,	FOREIGN KEY(`de`) REFERENCES USUARIO ( correo ));
+INSERT INTO "CORREO_E" VALUES(1,'07/12/2016','23:37:56','juan.rbocanegra@alumnos.udg.mx','jose@gmail.com','Correo de prueba para reenviar','Prueba reenviar','/home/daniel/Desktop/DB_Actividad_09/README.md',1);
+INSERT INTO "CORREO_E" VALUES(2,'08/12/2016','23:04:54','juan.rbocanegra@alumnos.udg.mx','juan.rbocanegra@alumnos.udg.mx','Este mensaje es evidencia del proyecto','Evidencia','/home/daniel/Desktop/DB_Proyecto/Proyecto.pdf',1);
+DELETE FROM sqlite_sequence;
+INSERT INTO "sqlite_sequence" VALUES('CONTACTO',6);
+INSERT INTO "sqlite_sequence" VALUES('CORREO',8);
+INSERT INTO "sqlite_sequence" VALUES('CORREO_E',2);
+COMMIT;
